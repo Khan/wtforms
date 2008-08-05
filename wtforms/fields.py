@@ -39,16 +39,13 @@ class Field(object):
         else:
             return super(Field, cls).__new__(cls, *args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, label=u'', validators=[], required=True, **kwargs):
         form = kwargs['form']
         self.name = kwargs['name']
         self.id = kwargs.get('id', form._idprefix + self.name)
-        if args and isinstance(args[0], basestring):
-            self._label = args[0]
-            self.validators = args[1:]
-        else:
-            self._label = self.name
-            self.validators = args
+        self.label = Label(self.id, label)
+        self.validators = validators
+        self.required = required
         self.data = None
         self.errors = []
 
@@ -57,10 +54,6 @@ class Field(object):
 
     def __call__(self, **kwargs):
         raise NotImplementedError
-
-    def _get_label(self):
-        return Label(self.id, self._label) 
-    label = property(_get_label)
         
     def _validate(self, *args):
         pass
@@ -79,16 +72,16 @@ class Label(object):
     def __unicode__(self):
         return self()
 
-    def __call__(self, **kwargs):
+    def __call__(self, text=None, **kwargs):
         kwargs['for'] = self.field_id
         attributes = html_params(**kwargs)
-        return u'<label %s>%s</label>' % (attributes, self.text)
+        return u'<label %s>%s</label>' % (attributes, text or self.text)
 
 class SelectField(Field):
-    def __init__(self, *args, **kwargs):
-        super(SelectField, self).__init__(*args, **kwargs)
-        self.checker = kwargs.pop('checker', str)
-        self.choices = kwargs.pop('choices', None)
+    def __init__(self, label=u'', validators=[], required=True, checker=str, choices=None, *args, **kwargs):
+        super(SelectField, self).__init__(label, validators, required, *args, **kwargs)
+        self.checker = checker
+        self.choices = choices
 
     def __call__(self, **kwargs):
         kwargs.setdefault('id', self.id)
@@ -132,7 +125,7 @@ class SelectMultipleField(SelectField):
         choices = [c[0] for c in self.choices]
         for d in self.data:
             if d not in choices:
-                raise ValidationError("'%s' is not a valid choice for this field" % d)
+                raise ValidationError(u"'%s' is not a valid choice for this field" % d)
         
         
 class TextField(Field):
@@ -203,8 +196,8 @@ class BooleanField(Field):
 
 class DateTimeField(TextField):
     """ Can be represented by one or multiple text-inputs """
-    def __init__(self, *args, **kwargs):
-        super(DateTimeField, self).__init__(*args, **kwargs)
+    def __init__(self, label=u'', validators=[], required=True, *args, **kwargs):
+        super(DateTimeField, self).__init__(label, validators, required, *args, **kwargs)
         self.format = kwargs.pop('format', '%Y-%m-%d %H:%M:%S')
 
     def _value(self):
