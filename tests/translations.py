@@ -1,8 +1,9 @@
+from __future__ import unicode_literals
+
 from unittest import TestCase
 
 from wtforms import Form, TextField
 from wtforms import validators as v
-from wtforms.validators import u
 
 class Lower_Translator(object):
     """A fake translator that just converts everything to lowercase."""
@@ -30,14 +31,14 @@ class DummyTranslationsTest(TestCase):
         self.a = self.F().a
 
     def test_gettext(self):
-        x = u("foo")
+        x = "foo"
         self.assertTrue(self.a.gettext(x) is x)
 
     def test_ngettext(self):
-        getit = lambda n: self.a.ngettext(u("antelope"), u("antelopes"), n)
-        self.assertEqual(getit(0), u("antelopes"))
-        self.assertEqual(getit(1), u("antelope"))
-        self.assertEqual(getit(2), u("antelopes"))
+        getit = lambda n: self.a.ngettext("antelope", "antelopes", n)
+        self.assertEqual(getit(0), "antelopes")
+        self.assertEqual(getit(1), "antelope")
+        self.assertEqual(getit(2), "antelopes")
 
 
 
@@ -48,4 +49,4 @@ class TranslationsTest(TestCase):
     def test_validator_translation(self):
         form = self.F(a='hellobye')
         self.assertTrue(not form.validate())
-        self.assertEquals(form.a.errors[0], u('field cannot be longer than 5 characters.'))
+        self.assertEqual(form.a.errors[0], 'field cannot be longer than 5 characters.')

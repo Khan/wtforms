@@ -9,6 +9,8 @@ easy_install nosegae
 
 nosetests --with-gae --without-sandbox
 """
+from __future__ import unicode_literals, absolute_imports
+
 import sys, os
 WTFORMS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, WTFORMS_DIR)
@@ -20,7 +22,6 @@ from google.appengine.ext import db
 from wtforms import Form, fields as f, validators
 from wtforms.ext.appengine.db import model_form
 from wtforms.ext.appengine.fields import GeoPtPropertyField
-from wtforms.validators import u
 
 class DummyPostData(dict):
     def getlist(self, key):
@@ -238,7 +239,7 @@ class TestModelForm(TestCase):
         self.assertEqual(form.is_admin.label.text, 'Administrative rights')
 
     def test_reference_property(self):
-        keys = []
+        keys = ['__None']
         for name in ['foo', 'bar', 'baz']:
             author = Author(name=name, age=26)
             author.put()
@@ -261,6 +262,6 @@ class TestFields(TestCase):
     def test_geopt_property(self):
         form = self.GeoTestForm(DummyPostData(geo='5.0, -7.0'))
         self.assertTrue(form.validate())
-        self.assertEquals(form.geo.data, u('5.0,-7.0'))
+        self.assertEqual(form.geo.data, '5.0,-7.0')
         form = self.GeoTestForm(DummyPostData(geo='5.0,-f'))
         self.assertTrue(not form.validate())

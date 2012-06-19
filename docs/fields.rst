@@ -75,6 +75,12 @@ The Field base class
         If form data is processed, is the valuelist given from the formdata
         wrapper. Otherwise, `raw_data` will be `None`.
 
+    .. attribute:: object_data
+
+        This is the data passed from an object or from kwargs to the field,
+        stored unmodified. This can be used by templates, widgets, validators
+        as needed (for comparison, for example)
+
     **Rendering**
 
     To render a field, simply call it, providing any values the widget expects
@@ -269,7 +275,8 @@ refer to a single input from the form.
 
     Note that the `choices` keyword is only evaluated once, so if you want to make
     a dynamic drop-down list, you'll want to assign the choices list to the field
-    after instantiation.
+    after instantiation. Any inputted choices which are not in the given choices
+    list will cause validation on the field to fail.
 
     **Select fields with dynamic choice values**::
 

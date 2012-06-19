@@ -1,6 +1,53 @@
 WTForms Changelog
 =================
 
+Version 1.0.2
+-------------
+Not yet released
+
+- Add in ability to convert relationships to ext.sqlalchemy model_form
+- Built-in localizations for more languages
+- Distinguish Required validator into InputRequired and DataRequired
+- Better IP address validation, including IPv6 support.
+
+Version 1.0.1
+-------------
+Released February 29, 2012
+
+- Fixed issues related to building for python 3 and python pre-releases.
+
+- Add object_data to fields to get at the originally passed data.
+
+Version 1.0
+-----------
+Released February 28, 2012
+
+- Output HTML5 compact syntax by default.
+
+- Substantial code reorg, cleanup, and test improvements
+
+- Added ext.csrf for a way to implement CSRF protection
+
+- ext.sqlalchemy:
+  * Support PGInet, MACADDR, and UUID field conversion
+  * Support callable defaults
+
+- ext.appengine:
+  * model_form now supports generating forms with the same ordering as model.
+  * ReferencePropertyField now gets get_label like the other ORM fields
+
+- Add localization support for WTForms built-in messages
+
+- Python 3 support (via 2to3)
+
+- Minor changes/fixes:
+  * An empty label string can be specified on fields if desired
+  * Option widget can now take kwargs customization
+  * Field subclasses can provide default validators as a class property
+  * DateTimeField can take time in microseconds
+  * Numeric fields all set .data to None on coercion error for consistency.
+
+
 Version 0.6.3
 -------------
 Released April 24, 2011

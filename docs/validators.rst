@@ -13,6 +13,11 @@ flexible, and allows you to chain any number of validators on fields.
 Built-in validators
 -------------------
 
+.. autoclass:: wtforms.validators.DataRequired
+
+   This also sets the ``required`` :attr:`flag <wtforms.fields.Field.flags>` on
+   fields it is used on.
+
 .. autoclass:: wtforms.validators.Email
 
 .. autoclass:: wtforms.validators.EqualTo
@@ -21,13 +26,18 @@ Built-in validators
     scenarios, the password change form::
 
         class ChangePassword(Form):
-            password = PasswordField('New Password', [Required(), EqualTo('confirm', mesage='Passwords must match')])
+            password = PasswordField('New Password', [Required(), EqualTo('confirm', message='Passwords must match')])
             confirm  = PasswordField('Repeat Password')
 
     In the example, we use the Required validator to prevent the EqualTo
     validator from trying to see if the passwords do not match if there was no
     passwords specified at all. Because Required stops the validation chain,
     EqualTo is not run in the case the password field is left empty.
+
+.. autoclass:: wtforms.validators.InputRequired
+
+   This also sets the ``required`` :attr:`flag <wtforms.fields.Field.flags>` on
+   fields it is used on.
 
 .. autoclass:: wtforms.validators.IPAddress
 
@@ -42,10 +52,6 @@ Built-in validators
    This also sets the ``optional`` :attr:`flag <wtforms.fields.Field.flags>` on
    fields it is used on.
 
-.. autoclass:: wtforms.validators.Required
-
-   This also sets the ``required`` :attr:`flag <wtforms.fields.Field.flags>` on
-   fields it is used on.
 
 .. autoclass:: wtforms.validators.Regexp
 

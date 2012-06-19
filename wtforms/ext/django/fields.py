@@ -1,12 +1,13 @@
 """
 Useful form fields for use with the Django ORM.
 """
+from __future__ import unicode_literals
+
 import operator
-import warnings
 
 from wtforms import widgets
 from wtforms.fields import SelectFieldBase
-from wtforms.validators import ValidationError, u
+from wtforms.validators import ValidationError
 
 
 __all__ = (
@@ -32,7 +33,7 @@ class QuerySetSelectField(SelectFieldBase):
     """
     widget = widgets.Select()
 
-    def __init__(self, label=None, validators=None, queryset=None, get_label=None, label_attr=None, allow_blank=False, blank_text=u(''), **kwargs):
+    def __init__(self, label=None, validators=None, queryset=None, get_label=None, allow_blank=False, blank_text='', **kwargs):
         super(QuerySetSelectField, self).__init__(label, validators, **kwargs)
         self.allow_blank = allow_blank
         self.blank_text = blank_text
@@ -40,10 +41,7 @@ class QuerySetSelectField(SelectFieldBase):
         if queryset is not None:
             self.queryset = queryset.all() # Make sure the queryset is fresh
 
-        if label_attr is not None:
-            warnings.warn('label_attr= will be removed in WTForms 0.7, use get_label= instead.', DeprecationWarning)
-            self.get_label = operator.attrgetter(label_attr)
-        elif get_label is None:
+        if get_label is None:
             self.get_label = lambda x: x
         elif isinstance(get_label, basestring):
             self.get_label = operator.attrgetter(get_label)
@@ -66,7 +64,7 @@ class QuerySetSelectField(SelectFieldBase):
 
     def iter_choices(self):
         if self.allow_blank:
-            yield (u('__None'), self.blank_text, self.data is None)
+            yield ('__None', self.blank_text, self.data is None)
 
         for obj in self.queryset:
             yield (obj.pk, self.get_label(obj), obj == self.data)

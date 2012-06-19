@@ -1,12 +1,13 @@
+from __future__ import unicode_literals
+
 from django.db import models
 from django.contrib.localflavor.us.models import USStateField
-from wtforms.validators import u
 
 class Group(models.Model):
     name  = models.CharField(max_length=20)
 
     def __unicode__(self):
-        return u('%s(%d)') % (self.name, self.pk)
+        return '%s(%d)' % (self.name, self.pk)
 
 class User(models.Model):
     username = models.CharField(max_length=40)
