@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import unicode_literals
 
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy.schema import MetaData, Table, Column
@@ -8,6 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from unittest import TestCase
 
+from wtforms.compat import text_type, iteritems
 from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from wtforms.form import Form
 from wtforms.fields import TextField
@@ -18,7 +20,7 @@ from wtforms.ext.sqlalchemy.validators import Unique
 
 class LazySelect(object):
     def __call__(self, field, **kwargs):
-        return list((val, unicode(label), selected) for val, label, selected in field.iter_choices())
+        return list((val, text_type(label), selected) for val, label, selected in field.iter_choices())
 
 class DummyPostData(dict):
     def getlist(self, key):
@@ -26,7 +28,7 @@ class DummyPostData(dict):
 
 class Base(object):
     def __init__(self, **kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in iteritems(kwargs):
             setattr(self, k, v)
 
 class TestBase(TestCase):
@@ -80,10 +82,10 @@ class QuerySelectFieldTest(TestBase):
             a = QuerySelectField(get_label='name', widget=LazySelect(), get_pk=lambda x: x.id)
         form = F(DummyPostData(a=['1']))
         form.a.query = sess.query(self.Test)
-        self.assert_(form.a.data is not None)
+        self.assertTrue(form.a.data is not None)
         self.assertEqual(form.a.data.id, 1)
-        self.assertEqual(form.a(), [(u'1', 'apple', True), (u'2', 'banana', False)])
-        self.assert_(form.validate())
+        self.assertEqual(form.a(), [('1', 'apple', True), ('2', 'banana', False)])
+        self.assertTrue(form.validate())
 
     def test_with_query_factory(self):
         sess = self.Session()
@@ -95,25 +97,25 @@ class QuerySelectFieldTest(TestBase):
 
         form = F()
         self.assertEqual(form.a.data, None)
-        self.assertEqual(form.a(), [(u'1', 'apple', False), (u'2', 'banana', False)])
+        self.assertEqual(form.a(), [('1', 'apple', False), ('2', 'banana', False)])
         self.assertEqual(form.b.data, None)
-        self.assertEqual(form.b(), [(u'__None', '', True), (u'hello1', 'apple', False), (u'hello2', 'banana', False)])
-        self.assert_(not form.validate())
+        self.assertEqual(form.b(), [('__None', '', True), ('hello1', 'apple', False), ('hello2', 'banana', False)])
+        self.assertFalse(form.validate())
 
-        form = F(DummyPostData(a=[u'1'], b=[u'hello2']))
+        form = F(DummyPostData(a=['1'], b=['hello2']))
         self.assertEqual(form.a.data.id, 1)
-        self.assertEqual(form.a(), [(u'1', 'apple', True), (u'2', 'banana', False)])
+        self.assertEqual(form.a(), [('1', 'apple', True), ('2', 'banana', False)])
         self.assertEqual(form.b.data.baz, 'banana')
-        self.assertEqual(form.b(), [(u'__None', '', False), (u'hello1', 'apple', False), (u'hello2', 'banana', True)])
-        self.assert_(form.validate())
+        self.assertEqual(form.b(), [('__None', '', False), ('hello1', 'apple', False), ('hello2', 'banana', True)])
+        self.assertTrue(form.validate())
 
         # Make sure the query iQuerySelectMultipleFields cached
         sess.add(self.Test(id=3, name='meh'))
         sess.flush()
         sess.commit()
-        self.assertEqual(form.a(), [(u'1', 'apple', True), (u'2', 'banana', False)])
+        self.assertEqual(form.a(), [('1', 'apple', True), ('2', 'banana', False)])
         form.a._object_list = None
-        self.assertEqual(form.a(), [(u'1', 'apple', True), (u'2', 'banana', False), (u'3', 'meh', False)])
+        self.assertEqual(form.a(), [('1', 'apple', True), ('2', 'banana', False), ('3', 'meh', False)])
 
 
 class QuerySelectMultipleFieldTest(TestBase):
@@ -136,20 +138,20 @@ class QuerySelectMultipleFieldTest(TestBase):
         form = self.F(DummyPostData(a=['1']))
         form.a.query = self.sess.query(self.Test)
         self.assertEqual([1], [v.id for v in form.a.data])
-        self.assertEqual(form.a(), [(u'1', 'apple', True), (u'2', 'banana', False)])
-        self.assert_(form.validate())
+        self.assertEqual(form.a(), [('1', 'apple', True), ('2', 'banana', False)])
+        self.assertTrue(form.validate())
 
     def test_multiple_values_without_query_factory(self):
         form = self.F(DummyPostData(a=['1', '2']))
         form.a.query = self.sess.query(self.Test)
         self.assertEqual([1, 2], [v.id for v in form.a.data])
-        self.assertEqual(form.a(), [(u'1', 'apple', True), (u'2', 'banana', True)])
-        self.assert_(form.validate())
+        self.assertEqual(form.a(), [('1', 'apple', True), ('2', 'banana', True)])
+        self.assertTrue(form.validate())
 
         form = self.F(DummyPostData(a=['1', '3']))
         form.a.query = self.sess.query(self.Test)
         self.assertEqual([x.id for x in form.a.data], [1])
-        self.assert_(not form.validate())
+        self.assertFalse(form.validate())
 
     def test_single_default_value(self):
         first_test = self.sess.query(self.Test).get(2)
@@ -159,7 +161,7 @@ class QuerySelectMultipleFieldTest(TestBase):
         form = F()
         self.assertEqual([v.id for v in form.a.data], [2])
         self.assertEqual(form.a(), [(u'1', 'apple', False), (u'2', 'banana', True)])
-        self.assert_(form.validate())
+        self.assertTrue(form.validate())
 
 
 class ModelFormTest(TestCase):

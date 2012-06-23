@@ -1,6 +1,8 @@
 """
 Tools for generating forms based on SQLAlchemy models.
 """
+from __future__ import unicode_literals
+
 import inspect
 
 from wtforms import fields as f
@@ -188,19 +190,19 @@ class ModelConverter(ModelConverterBase):
 
     @converts('databases.postgres.PGInet', 'dialects.postgresql.base.INET')
     def conv_PGInet(self, field_args, **extra):
-        field_args.setdefault('label', u'IP Address')
+        field_args.setdefault('label', 'IP Address')
         field_args['validators'].append(validators.IPAddress())
         return f.TextField(**field_args)
 
     @converts('dialects.postgresql.base.MACADDR')
     def conv_PGMacaddr(self, field_args, **extra):
-        field_args.setdefault('label', u'MAC Address')
+        field_args.setdefault('label', 'MAC Address')
         field_args['validators'].append(validators.MacAddress())
         return f.TextField(**field_args)
 
     @converts('dialects.postgresql.base.UUID')
     def conv_PGUuid(self, field_args, **extra):
-        field_args.setdefault('label', u'UUID')
+        field_args.setdefault('label', 'UUID')
         field_args['validators'].append(validators.UUID())
         return f.TextField(**field_args)
 
